@@ -1,67 +1,77 @@
 {
-  "name": "@termpura/core",
-  "version": "0.0.1-beta.1",
-  "description": "Create delicious Terminal UIs without the culinary classes.",
-  "sideEffects": false,
-  "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.cjs"
-    }
-  },
-  "files": [
-    "dist",
+	"name": "@termpura/core",
+	"version": "0.0.1-beta.2",
+	"description": "Create delicious Terminal UIs without the culinary classes.",
+	"sideEffects": false,
+	"type": "module",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.cjs",
+			"default": "./dist/index.cjs"
+		}
+	},
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist",
 		"README.md",
 		"LICENSE"
-  ],
-  "scripts": {
-    "test": "cd tests && node index.js",
-    "lint": "eslint src --config ./eslint.config.json --ext .js",
-    "lint:fix": "eslint src --config ./eslint.config.json --ext .js --fix",
-    "format": "prettier --check . --config ./prettier.config.json",
-    "format:fix": "prettier --write . --config ./prettier.config.json",
-    "build": "rimraf ./dist/** && rollup --config",
-    "build:cjs": "rimraf ./dist/index.cjs && rollup src/index.js --file dist/index.cjs --format cjs",
-    "build:mjs": "rimraf ./dist/index.mjs && rollup src/index.js --file dist/index.mjs --format esm"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rayhanadev/termpura-core.git"
-  },
-  "keywords": [
-    "fetch",
-    "https",
-    "async",
-    "request"
-  ],
-  "author": "Ray Arayilakath <rayhanadev@protonmail.com> (https://furret.codes)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/rayhanadev/termpura-core/issues"
-  },
-  "homepage": "https://github.com/rayhanadev/termpura-core",
-  "devDependencies": {
-    "@babel/core": "^7.15.8",
-    "@babel/preset-env": "^7.16.0",
-    "@rollup/plugin-babel": "^5.3.0",
-    "@rollup/plugin-commonjs": "^21.0.1",
-    "@rollup/plugin-node-resolve": "^13.0.6",
-    "eslint": "^7.28.0",
-    "prettier": "^2.3.1",
-    "rimraf": "^3.0.2",
-    "rollup": "^2.51.2",
-    "rollup-plugin-terser": "^7.0.2"
-  },
-  "dependencies": {
-    "chalk": "^4.1.2",
-    "clear": "^0.1.0",
-    "inquirer": "^8.1.5"
-  },
-  "directories": {
-    "test": "tests"
-  }
+	],
+	"scripts": {
+		"test": "yarn build && cd tests && node index.js",
+		"lint": "eslint src --config ./eslint.config.json",
+		"lint:fix": "eslint src --config ./eslint.config.json --fix",
+		"format": "prettier --check . --config ./prettier.config.json",
+		"format:fix": "prettier --write . --config ./prettier.config.json",
+		"build": "rimraf ./dist/** && rollup --config",
+		"build:cjs": "rimraf ./dist/index.cjs && rollup src/index.js --file dist/index.cjs --format cjs",
+		"build:mjs": "rimraf ./dist/index.mjs && rollup src/index.js --file dist/index.mjs --format esm"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rayhanadev/termpura-core.git"
+	},
+	"keywords": [
+		"fetch",
+		"https",
+		"async",
+		"request"
+	],
+	"author": "Ray Arayilakath <rayhanadev@protonmail.com> (https://furret.codes)",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/rayhanadev/termpura-core/issues"
+	},
+	"homepage": "https://github.com/rayhanadev/termpura-core",
+	"devDependencies": {
+		"@babel/core": "^7.15.8",
+		"@babel/preset-env": "^7.16.0",
+		"@rollup/plugin-babel": "^5.3.0",
+		"@rollup/plugin-commonjs": "^21.0.1",
+		"@rollup/plugin-node-resolve": "^13.0.6",
+		"@rollup/plugin-typescript": "^8.3.3",
+		"@types/inquirer": "^8.2.1",
+		"@typescript-eslint/eslint-plugin": "^5.27.1",
+		"@typescript-eslint/parser": "^5.27.1",
+		"eslint": "^7.28.0",
+		"eslint-config-prettier": "^8.5.0",
+		"prettier": "^2.3.1",
+		"rimraf": "^3.0.2",
+		"rollup": "^2.51.2",
+		"rollup-plugin-delete": "^2.0.0",
+		"rollup-plugin-dts": "^4.2.2",
+		"rollup-plugin-terser": "^7.0.2",
+		"typescript": "^4.7.3"
+	},
+	"dependencies": {
+		"chalk": "^4.1.2",
+		"clear": "^0.1.0",
+		"fast-glob": "^3.2.11",
+		"inquirer": "^8.1.5"
+	},
+	"directories": {
+		"test": "tests"
+	}
 }
