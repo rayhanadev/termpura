@@ -1,20 +1,17 @@
 export const menu = () => ({
-	example: 'example',
-	'example/[slug]': 'slug',
+	// Add Menu Items Here
 });
 
 export const getProps = (pass) => {
-	return { ...pass, menu: { message: 'index.js' } };
+	return { ...pass, menu: { message: 'example/index.js' } };
 };
 
 export default function home(props, selection) {
 	try {
 		switch (selection) {
-			case 'example': {
-				return { to: 'example' };
-			}
-			case 'slug': {
-				return { to: 'example/test' };
+			case '': {
+				// Add Handlers Here
+				// Add Routing Here
 			}
 		}
 

@@ -1,9 +1,9 @@
 import clear from 'clear';
 import inquirer from 'inquirer';
 
-import { toListOptions, createMenu, wrappedImport } from './utils.js';
+import { toListOptions, createMenu, wrappedImport } from './utils';
 
-export const loadPage = async (file, pass = {}) => {
+export const loadPage = async (file: string, pass = {}): Promise<void> => {
 	const { default: _app, getProps: getMetaProps } = await wrappedImport(
 		'_app',
 	);
@@ -22,13 +22,19 @@ export const loadPage = async (file, pass = {}) => {
 
 	clear();
 	const metaProps = await getMetaProps(pass);
-	await _app(file, { ...metaProps });
+	const redirect = await _app({ ...metaProps }, file);
+
+	if (redirect && redirect.to)
+		return await loadPage(redirect.to, redirect.pass);
 
 	const pageProps = await getProps(pass);
 	const menu = pageMenu instanceof Function ? pageMenu() : pageMenu;
 
 	const { a: selection } = await inquirer.prompt(
-		createMenu(await toListOptions(menu), pageProps.menuMessage),
+		createMenu(
+			await toListOptions(menu),
+			pageProps.menu ? pageProps.menu.message : '',
+		),
 	);
 
 	if (selection === 'return' && file === 'index') {
@@ -39,13 +45,16 @@ export const loadPage = async (file, pass = {}) => {
 	}
 
 	if (selection === 'return') {
-		await loadPage('index');
+		return await loadPage('index');
 	}
 
-	const res = await page(selection, {
-		...pageProps,
-	});
+	const res = await page(
+		{
+			...pageProps,
+		},
+		selection,
+	);
 
-	if (res.to) await loadPage(res.to, res.pass);
-	else await loadPage(file, res.pass);
+	if (res.to) return await loadPage(res.to, res.pass);
+	return await loadPage(file, res.pass);
 };
