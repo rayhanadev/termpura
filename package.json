@@ -1,6 +1,6 @@
 {
 	"name": "@termpura/core",
-	"version": "0.0.1-beta.2",
+	"version": "0.0.1-beta.3",
 	"description": "Create delicious Terminal UIs without the culinary classes.",
 	"sideEffects": false,
 	"type": "module",
@@ -31,7 +31,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/rayhanadev/termpura-core.git"
+		"url": "git+https://github.com/termpura/core.git"
 	},
 	"keywords": [
 		"fetch",
@@ -42,9 +42,9 @@
 	"author": "Ray Arayilakath <rayhanadev@protonmail.com> (https://furret.codes)",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/rayhanadev/termpura-core/issues"
+		"url": "https://github.com/termpura/core/issues"
 	},
-	"homepage": "https://github.com/rayhanadev/termpura-core",
+	"homepage": "https://github.com/termpura/core",
 	"devDependencies": {
 		"@babel/core": "^7.15.8",
 		"@babel/preset-env": "^7.16.0",
