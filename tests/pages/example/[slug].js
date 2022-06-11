@@ -3,7 +3,10 @@ export const menu = () => ({
 });
 
 export const getProps = (pass) => {
-	return { ...pass, menu: { message: 'example/[slug].js' } };
+	return {
+		...pass,
+		menu: { message: `example/[slug].js - slug: ${pass.slug}` },
+	};
 };
 
 export default function home(props, selection) {

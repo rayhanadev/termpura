@@ -68,7 +68,7 @@ const lookupFile = (file) => __awaiter(void 0, void 0, void 0, function* () {
             try {
                 const dirMain = node_fs.statSync(file + '/index.js');
                 if (dirMain.isFile())
-                    return file + '/index.js';
+                    return { path: file + '/index.js', type: 'DIR' };
             }
             catch (_a) {
                 throw new Error('that page is a folder that does not have an index.js file.');
@@ -78,7 +78,7 @@ const lookupFile = (file) => __awaiter(void 0, void 0, void 0, function* () {
     if (node_fs.existsSync(file + '.js')) {
         const lookup = node_fs.statSync(file + '.js');
         if (lookup.isFile())
-            return file + '.js';
+            return { path: file + '.js', type: 'FILE' };
     }
     const glob = `\\[*\\].js`;
     const slugPaths = yield fg__default["default"](glob, { cwd: path__default["default"].dirname(file) });
@@ -87,9 +87,12 @@ const lookupFile = (file) => __awaiter(void 0, void 0, void 0, function* () {
     if (slugPaths.length === 1) {
         const lookup = node_fs.statSync(`${path__default["default"].dirname(file)}/${slugPaths[0]}`);
         if (lookup.isFile())
-            return `${path__default["default"].dirname(file)}/${slugPaths[0]}`;
+            return {
+                path: `${path__default["default"].dirname(file)}/${slugPaths[0]}`,
+                type: 'SLUG',
+            };
     }
-    return `${path__default["default"].dirname(file)}/404.js`;
+    return { path: path__default["default"].join(process.cwd(), 'pages', '404.js'), type: 'FILE' };
 });
 const toPagesPath = (file) => node_process.platform === 'win32'
     ? 'file:\\\\\\' + path__default["default"].resolve(path__default["default"].join('pages', file))
@@ -125,7 +128,7 @@ const createMenu = (menu, message = '') => {
 const wrappedImport = (file) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const fileName = yield lookupFile(toPagesPath(file));
-        const page = yield (function (t) { return Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(t)); }); })(fileName);
+        const page = yield (function (t) { return Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(t)); }); })(fileName.path);
         if (!page.default) {
             throw new Error(`Could not load ${file}, missing default export.`);
         }
@@ -135,7 +138,8 @@ const wrappedImport = (file) => __awaiter(void 0, void 0, void 0, function* () {
         if (!page.getProps) {
             throw new Error(`Could not load ${file}, missing named export getProps.`);
         }
-        return page;
+        return fileName.type === 'SLUG'
+            ? Object.assign(Object.assign({}, page), { slug: path__default["default"].basename(file, '.js') }) : Object.assign({}, page);
     }
     catch (error) {
         throw new Error(`Could not load ${file}, ` + error.message);
@@ -147,14 +151,14 @@ const loadPage = (file, pass = {}) => __awaiter(void 0, void 0, void 0, function
     const { default: _exit, getProps: getExitProps } = yield wrappedImport('_exit');
     if (file.startsWith('_'))
         throw new Error(`Could not load ${file}, termpura special file.`);
-    const { default: page, menu: pageMenu, getProps, } = yield wrappedImport(file);
+    const { default: page, menu: pageMenu, getProps, slug, } = yield wrappedImport(file);
     clear__default["default"]();
     const metaProps = yield getMetaProps(pass);
     const redirect = yield _app(Object.assign({}, metaProps), file);
     if (redirect && redirect.to)
         return yield loadPage(redirect.to, redirect.pass);
-    const pageProps = yield getProps(pass);
-    const menu = pageMenu instanceof Function ? pageMenu() : pageMenu;
+    const pageProps = yield getProps(Object.assign(Object.assign({}, pass), { slug }));
+    const menu = pageMenu instanceof Function ? yield pageMenu() : pageMenu;
     const { a: selection } = yield inquirer__default["default"].prompt(createMenu(yield toListOptions(menu), pageProps.menu ? pageProps.menu.message : ''));
     if (selection === 'return' && file === 'index') {
         const exitProps = yield getExitProps(pass);

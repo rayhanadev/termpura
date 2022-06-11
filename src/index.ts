@@ -18,6 +18,7 @@ export const loadPage = async (file: string, pass = {}): Promise<void> => {
 		default: page,
 		menu: pageMenu,
 		getProps,
+		slug,
 	} = await wrappedImport(file);
 
 	clear();
@@ -27,8 +28,8 @@ export const loadPage = async (file: string, pass = {}): Promise<void> => {
 	if (redirect && redirect.to)
 		return await loadPage(redirect.to, redirect.pass);
 
-	const pageProps = await getProps(pass);
-	const menu = pageMenu instanceof Function ? pageMenu() : pageMenu;
+	const pageProps = await getProps({ ...pass, slug });
+	const menu = pageMenu instanceof Function ? await pageMenu() : pageMenu;
 
 	const { a: selection } = await inquirer.prompt(
 		createMenu(

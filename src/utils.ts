@@ -6,13 +6,19 @@ import fg from 'fast-glob';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
-export const lookupFile = async (file: string): Promise<string> => {
+interface LookupResult {
+	path: string;
+	type: 'FILE' | 'DIR' | 'SLUG';
+}
+
+export const lookupFile = async (file: string): Promise<LookupResult> => {
 	if (existsSync(file)) {
 		const lookup = statSync(file);
 		if (lookup.isDirectory()) {
 			try {
 				const dirMain = statSync(file + '/index.js');
-				if (dirMain.isFile()) return file + '/index.js';
+				if (dirMain.isFile())
+					return { path: file + '/index.js', type: 'DIR' };
 			} catch {
 				throw new Error(
 					'that page is a folder that does not have an index.js file.',
@@ -23,7 +29,7 @@ export const lookupFile = async (file: string): Promise<string> => {
 
 	if (existsSync(file + '.js')) {
 		const lookup = statSync(file + '.js');
-		if (lookup.isFile()) return file + '.js';
+		if (lookup.isFile()) return { path: file + '.js', type: 'FILE' };
 	}
 
 	const glob = `\\[*\\].js`;
@@ -32,10 +38,14 @@ export const lookupFile = async (file: string): Promise<string> => {
 		throw new Error('multiple files with slugs found.');
 	if (slugPaths.length === 1) {
 		const lookup = statSync(`${path.dirname(file)}/${slugPaths[0]}`);
-		if (lookup.isFile()) return `${path.dirname(file)}/${slugPaths[0]}`;
+		if (lookup.isFile())
+			return {
+				path: `${path.dirname(file)}/${slugPaths[0]}`,
+				type: 'SLUG',
+			};
 	}
 
-	return `${path.dirname(file)}/404.js`;
+	return { path: path.join(process.cwd(), 'pages', '404.js'), type: 'FILE' };
 };
 
 export const toPagesPath = (file: string): string =>
@@ -114,20 +124,24 @@ type DefaultFunction = (
 	props: Props,
 	selection?: string,
 ) => MainExport | Promise<MainExport>;
+
+type MenuFunction = () => RawMenu | Promise<RawMenu>;
+
 type GetPropsFunction = (pass: {
 	[key: string]: string;
 }) => Props | Promise<Props>;
 
 interface Page {
 	default: DefaultFunction;
-	menu?: RawMenu[];
+	menu?: MenuFunction | RawMenu;
 	getProps: GetPropsFunction;
+	slug?: string;
 }
 
 export const wrappedImport = async (file: string): Promise<Page> => {
 	try {
 		const fileName = await lookupFile(toPagesPath(file));
-		const page: Page = await import(fileName);
+		const page: Page = await import(fileName.path);
 
 		if (!page.default) {
 			throw new Error(`Could not load ${file}, missing default export.`);
@@ -145,7 +159,9 @@ export const wrappedImport = async (file: string): Promise<Page> => {
 			);
 		}
 
-		return page;
+		return fileName.type === 'SLUG'
+			? { ...page, slug: path.basename(file, '.js') }
+			: { ...page };
 	} catch (error) {
 		throw new Error(`Could not load ${file}, ` + error.message);
 	}
